@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from django.views import View
+from board.models import Article
+from django.utils import timezone
 
 class MyApiView(View):
     def get(self, request):
@@ -11,10 +13,13 @@ class MyApiView(View):
             return JsonResponse({'post-error':'err'}, status=400)
 
     def post(self, request):
-        print(request.POST)
         try:
-            name = request.POST.get('name')
-            return JsonResponse({'name':name}, status=200)
+            title = request.POST.get('title')
+            content = request.POST.get('content')
+            author = request.POST.get('author')
+            article = Article(date=timezone.now(), title=title, content=content, author=author)
+            article.save()
+            return JsonResponse({'result':'success'}, status=200)
         except:
-            return JsonResponse({'post-error':'err'},status=400)
+            return JsonResponse({'result':'fail'},status=400)
 
