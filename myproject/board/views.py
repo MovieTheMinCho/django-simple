@@ -6,11 +6,21 @@ from django.utils import timezone
 class MyApiView(View):
     def get(self, request):
         try:
-            name = request.GET.get('name')
-            old = request.GET.get('old')
-            return JsonResponse({'name':name, 'old':old}, status=200)
+            start = int(request.GET.get('start'))
+            size = int(request.GET.get('size'))
+            articles = Article.objects.order_by('-date')
+            data = []
+            for article in articles[start:start+size]:
+                data.append({
+                    'title':article.title,
+                    'content':article.content,
+                    'author':article.author,
+                    'date':article.date
+                    })
+
+            return JsonResponse({'result':'success', 'data':data}, status=200)
         except:
-            return JsonResponse({'post-error':'err'}, status=400)
+            return JsonResponse({'result':'fail'}, status=400)
 
     def post(self, request):
         try:
