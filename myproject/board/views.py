@@ -8,5 +8,13 @@ class MyApiView(View):
             old = request.GET.get('old')
             return JsonResponse({'name':name, 'old':old}, status=200)
         except:
-            JsonResponse({'error':'err'}, status=400)
+            return JsonResponse({'post-error':'err'}, status=400)
+
+    def post(self, request):
+        print(request.POST)
+        try:
+            name = request.POST.get('name')
+            return JsonResponse({'name':name}, status=200)
+        except:
+            return JsonResponse({'post-error':'err'},status=400)
 
