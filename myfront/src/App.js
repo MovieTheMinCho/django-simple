@@ -2,6 +2,13 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
+	function data(){
+		fetch("http://127.0.0.1:8000/boards")
+			.then(res => res.text())
+			.catch(error => console(error))
+			.finally(console.log('finish'))
+	}
+
   return (
     <div className="App">
       <header className="App-header">
@@ -16,6 +23,7 @@ function App() {
           rel="noopener noreferrer"
         >
           Learn React
+					{data()}
         </a>
       </header>
     </div>
