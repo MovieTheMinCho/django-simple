@@ -13,7 +13,7 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    def __dict__(self):
+    def get_dict(self):
         return {
                 'id': self.id_number,
                 'title': self.title,

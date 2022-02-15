@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.views import View
 from board.models import Article
 from django.utils import timezone
+from django.http import QueryDict
+
 
 FAIL = JsonResponse({'result':'fail'}, status=400)
 
@@ -13,7 +15,7 @@ class MyApiView(View):
             size = int(request.GET.get('size', default=10))
             articles = Article.objects.order_by('-date')
             for article in articles[start:start+size]:
-                data.append(article.__dict__())
+                data.append(article.get_dict())
             return JsonResponse({'result':'success', 'data':data}, status=200)
         except:
             return FAIL
@@ -42,15 +44,18 @@ class IdApiView(View):
             return JsonResponse(
                     {
                         'result':'success',
-                        'data':article.__dict__()
+                        'data':article.get_dict()
                         }, status=200)
         except:
             return FAIL
 
-    def delete(self, request, article_id):
+    def post(self, request, article_id):
+        print(request.POST)
         try:
+            print(article_id)
             article = Article.objects.get(id_number=article_id)
-            if article['password'] == request.DELETE.get('password')[:10]:
+            print(article)
+            if article.password == request.POST.get('password')[:10]:
                 article.delete()
             else:
                 return JsonResponse({
