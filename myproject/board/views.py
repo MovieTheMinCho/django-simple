@@ -50,11 +50,8 @@ class IdApiView(View):
             return FAIL
 
     def post(self, request, article_id):
-        print(request.POST)
         try:
-            print(article_id)
             article = Article.objects.get(id_number=article_id)
-            print(article)
             if article.password == request.POST.get('password')[:10]:
                 article.delete()
             else:
