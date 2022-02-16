@@ -1,33 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component  } from 'react';
 
-function App() {
-	function data(){
-		fetch("http://127.0.0.1:8000/boards")
-			.then(res => res.text())
-			.catch(error => console(error))
-			.finally(console.log('finish'))
-	}
+const API_HOST = 'http://localhost:8000/boards';
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-					{data()}
-        </a>
-      </header>
-    </div>
-  );
+let _csrfToken = null;
+
+async function getCsrfToken() {
+  if (_csrfToken === null) {
+    const response = await fetch(`${API_HOST}/csrf`, {
+            credentials: 'include',
+    });
+        const data = await response.json();
+        _csrfToken = data.csrfToken;
+  }
+    return _csrfToken;
+}
+
+async function testRequest() {
+  const data = {
+    'title':'react_test',
+    'content':'content',
+    'author':'lee',
+    'password':'1234'
+  }
+  const response = await fetch (`${API_HOST}`, {
+    method: 'POST',
+    headers:(
+             {'X-CSRFToken': await getCsrfToken()}
+    ),
+    credentials: 'include',
+    body: JSON.stringify(data),
+  })
+}
+
+class App extends Component {
+
+  constructor(props) {
+        super(props);
+    this.state = {
+            testPost: 'KO',
+    };
+  }
+
+  async componentDidMount() {
+    this.setState({
+                        testPost: await testRequest(),
+    });
+  }
+
+  render() {
+    return (
+                  <div>
+                    <p>Test POST request: {this.state.testPost}</p>
+                  </div>
+    );
+  }
 }
 
 export default App;
+

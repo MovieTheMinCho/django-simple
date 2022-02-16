@@ -3,9 +3,14 @@ from django.views import View
 from board.models import Article
 from django.utils import timezone
 from django.http import QueryDict
+from django.middleware.csrf import get_token
+import json
 
 
 FAIL = JsonResponse({'result':'fail'}, status=400)
+
+def csrf(request):
+    return JsonResponse({'csrfToken': get_token(request)})
 
 class MyApiView(View):
     def get(self, request):
@@ -21,11 +26,12 @@ class MyApiView(View):
             return FAIL
 
     def post(self, request):
+        data = json.loads(request.body.decode('utf-8'))
         try:
-            title = request.POST.get('title')[:30]
-            content = request.POST.get('content')[:1500]
-            author = request.POST.get('author')[:10]
-            password = request.POST.get('password')[:10]
+            title = data.get('title')[:30]
+            content = data.get('content')[:1500]
+            author = data.get('author')[:10]
+            password = data.get('password')[:10]
             article = Article(
                     date=timezone.now(),
                     title=title,
