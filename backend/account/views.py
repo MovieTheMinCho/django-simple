@@ -19,7 +19,7 @@ class LoginView(GenericAPIView):
   serializer_class = LoginSerializer
 
   def get(self, request):
-    logined_user = request.session.get('user', 'unlogin')
+    logined_user = request.session.get('login', 'unlogin')
     return Response({'user':logined_user}, status=status.HTTP_200_OK)
 
   def post(self, request):
