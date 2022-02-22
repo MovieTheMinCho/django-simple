@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from account.models import GeneralUser
 from .serializer import ResiterSerializer, LoginSerializer
 
 # Create your views here.
@@ -19,17 +21,29 @@ class LoginView(GenericAPIView):
   serializer_class = LoginSerializer
 
   def get(self, request):
-    logined_user = request.session.get('login', 'unlogin')
-    return Response({'user':logined_user}, status=status.HTTP_200_OK)
+    return Response({'session':request.session}, status=status.HTTP_200_OK)
 
   def post(self, request):
-      serializer = self.serializer_class(
-        data=request.data, 
-        context={'request':request})
-      rst = serializer.is_valid(raise_exception=True)
-      username = serializer.validated_data['user'].username
-      if rst:
-        request.session['login'] = username
-      return Response({'sucess': rst, 'user':username}, status=status.HTTP_200_OK)
+      username = request.POST['username']
+      password = request.POST['password']
+      user = authenticate(request, username=username, password=password)
+      if user is not None:
+        login(request, user)
+        return Response({'user':username, 'status':"logined"}, status=status.HTTP_200_OK)
+      else:
+        return Response({'user':username, 'status':"can't find user"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    
+class LogoutView(GenericAPIView):
+  def get(self, request):
+    logout(request)
+    return Response({'session':request.session}, status=status.HTTP_200_OK)
+
+class Profile(GenericAPIView):
+  def get(self, request, *args, **kwargs):
+    pk = kwargs.get('pk', None)
+    if pk == None:
+      pk = request.session.get('_auth_user_id')
+      user = GeneralUser.objects.get(pk=pk)
+    else:
+      user = GeneralUser.objects.get(pk=kwargs['pk'])
+    return Response({'user':user.to_json()}, status=status.HTTP_200_OK)

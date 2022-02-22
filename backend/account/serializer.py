@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import GeneralUser
 from django.contrib.auth.models import User
-from django.contrib.auth.hashers import check_password
 
 class ResiterSerializer(serializers.Serializer):
   username = serializers.CharField(max_length=10)
@@ -39,17 +38,3 @@ class ResiterSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
   username = serializers.CharField(max_length=10)
   password = serializers.CharField(style={"input_type":"password"})
-
-  def validate(self, attrs):
-    username = attrs.get('username')
-    password = attrs.get('password')
-    try:
-      user = User.objects.get(username=username)
-    except:
-      raise serializers.ValidationError("The id is incorrect.")
-    print(user.password)
-    pwd_valid = check_password(password, user.password)
-    if not pwd_valid:
-      raise serializers.ValidationError("The password is incorrect.")
-    attrs['user'] = user
-    return attrs
