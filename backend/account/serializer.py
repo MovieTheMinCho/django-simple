@@ -1,6 +1,8 @@
+from pydoc import describe
 from rest_framework import serializers
 from .models import GeneralUser
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 class ResiterSerializer(serializers.Serializer):
   username = serializers.CharField(max_length=10)
@@ -34,6 +36,28 @@ class ResiterSerializer(serializers.Serializer):
     )
     user.save()
     return user
+
+class UserSerializer(serializers.ModelSerializer):
+  password_validate=make_password
+  
+  class Meta:
+    model=User
+    fields=['username', 'password', 'ck_password', 'first_name', 'last_name', 'email']
+    extra_kwargs = {
+      'password': {
+        'style': {
+          'input_type':'password'
+          }
+        }
+      }
+
+class GeneralUserSerializer(serializers.ModelSerializer):
+  user = UserSerializer()
+
+  class Meta:
+    model=GeneralUser
+    fields="__all__"
+    depth=2 
 
 class LoginSerializer(serializers.Serializer):
   username = serializers.CharField(max_length=10)

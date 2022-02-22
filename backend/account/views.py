@@ -2,9 +2,11 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
+
 
 from account.models import GeneralUser
-from .serializer import ResiterSerializer, LoginSerializer
+from .serializer import ResiterSerializer, LoginSerializer, GeneralUserSerializer
 
 # Create your views here.
 
@@ -47,3 +49,6 @@ class Profile(GenericAPIView):
     else:
       user = GeneralUser.objects.get(pk=kwargs['pk'])
     return Response({'user':user.to_json()}, status=status.HTTP_200_OK)
+  
+class RegisterTest(ModelViewSet):
+  serializer_class = GeneralUserSerializer
