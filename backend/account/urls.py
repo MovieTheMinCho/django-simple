@@ -1,13 +1,14 @@
-from django.urls import path, include
+from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import LogoutView, Profile, RegisterTest, ResiterView, LoginView
+from .views import LogoutView, LoginView, ProfileView
 
 urlpatterns = [
-  path('register/', ResiterView.as_view()),
+  path('register/', ProfileView.as_view({'post':'create'})),
   path('login/', LoginView.as_view()),
   path('logout/', LogoutView.as_view()),
-  path('profile/', login_required(Profile.as_view())),
-  path('profile/<int:pk>/', Profile.as_view()),
-
-  path('register/test/', RegisterTest.as_view({'post':'create'})),
+  path('profile/<int:pk>/', ProfileView.as_view({
+    'get':'retrieve',
+    'delete':'destroy',
+    'put':'update'
+    })),
 ]
