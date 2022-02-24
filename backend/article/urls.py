@@ -9,10 +9,10 @@ urlpatterns = [
   path('<int:pk>/', ArticleView.as_view({
     'get':'retrieve', 
     'delete':'destroy'})),
-  path('<int:pk>/comment/', CommentView.as_view({
+  path('<int:article_id>/comment/', CommentView.as_view({
     'get':'list', 
     'post':'create'})),
-  path('<int:pk>/comment/<int:cpk>', CommentView.as_view({
+  path('<int:article_id>/comment/<int:comment_id>', CommentView.as_view({
     'get':'retrieve',
     'delete':'destroy'
   }))

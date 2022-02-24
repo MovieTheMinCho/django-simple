@@ -50,5 +50,5 @@ class ProfileView(
     return super().destroy(request, *args, **kwargs)
   
   @login_auth_deco_with_method(lookup_field)
-  def update(self, request, *args, **kwargs):
+  def partial_update(self, request, *args, **kwargs):
     return super().update(request, *args, **kwargs)

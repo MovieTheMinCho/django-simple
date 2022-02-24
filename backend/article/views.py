@@ -1,4 +1,7 @@
+from urllib import response
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from rest_framework.viewsets import GenericViewSet, mixins
 from rest_framework.response import Response
 from rest_framework import status
@@ -30,13 +33,11 @@ class ArticleView(
       'title':request.data.get('title'),
       'content':request.data.get('content')}
     articleSerializer = ArticleSerializer(data=data)
-    print(articleSerializer)
     if not articleSerializer.is_valid():
       return Response(status=status.HTTP_400_BAD_REQUEST)
     articleSerializer.save()
     return Response(status=status.HTTP_201_CREATED)
 
-  @login_auth_deco_with_method(lookup_field)
   def destroy(self, request, *args, **kwargs):
     user_id = get_auth_user_id(request)
     article_id = kwargs.get(self.lookup_field)
@@ -55,20 +56,28 @@ class CommentView(
   GenericViewSet):
   queryset = Comment.objects.all()
   serializer_class = CommentSerializer
-  lookup_field = 'cpk'
+  lookup_field='comment_id'
+
 
   def list(self, request, *args, **kwargs):
-    return super().list(request, *args, **kwargs)
-    
+    queryset = self.get_queryset().filter(article=kwargs.get('article_id'))
+    serializer = self.get_serializer(queryset, many=True)
+    return Response(serializer.data)
+
+  @method_decorator(login_required)
   def create(self, request, *args, **kwargs):
-    article_id = kwargs.get('pk')
+    article_id = kwargs.get('article_id')
     author_id = get_auth_user_id(request)
-    Comment.objects.create(
-      author_id=author_id,
-      article_id=article_id,
-      content=request.data.get('content')
-    )
-    return super().create(request, *args, **kwargs)
+    data = {
+      'article_id':article_id,
+      'author_id':author_id,
+      'content':request.data.get('content')
+    }
+    serializer = self.get_serializer(data=data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
   @login_auth_deco_with_method(lookup_field)
   def destroy(self, request, *args, **kwargs):
