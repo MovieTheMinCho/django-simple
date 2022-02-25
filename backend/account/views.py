@@ -51,4 +51,9 @@ class ProfileView(
   
   @login_auth_deco_with_method(lookup_field)
   def partial_update(self, request, *args, **kwargs):
-    return super().update(request, *args, **kwargs)
+    user = Profile.objects.get(pk=kwargs.get('pk'))
+    serializer = self.get_serializer(user, request.data, partial=True)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(status=status.HTTP_206_PARTIAL_CONTENT)
+    return Response(status.HTTP_400_BAD_REQUEST)

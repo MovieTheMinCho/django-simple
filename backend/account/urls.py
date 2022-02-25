@@ -9,5 +9,6 @@ urlpatterns = [
   path('profile/<int:pk>/', ProfileView.as_view({
     'get':'retrieve',
     'delete':'destroy',
+    'patch':'partial_update'
     })),
 ]
